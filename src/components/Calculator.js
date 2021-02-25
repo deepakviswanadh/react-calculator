@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { Fragment, useState, useRef } from "react";
 
 const Calculator = () => {
   const [operand1, setOperand1] = useState(" ");
@@ -6,66 +6,15 @@ const Calculator = () => {
   const [result, setResult] = useState(" ");
   const operations = ["+", "-", "*", "/", "%"];
   const [select, setSelect] = useState(operations[0]);
+  const copyRef = useRef(null);
   var j = 0; //key for map
-  const op = operations.map((op) => {
+  const options = operations.map((op) => {
     return (
       <option className="item" key={++j}>
         {op}
       </option>
     );
   });
-
-  const onChange1 = (e) => {
-    setOperand1(e.target.value);
-  };
-
-  const onChange2 = (e) => {
-    setOperand2(e.target.value);
-  };
-
-  //perform operation
-  const onClick1 = () => {
-    switch (select) {
-      case "+":
-        setResult(Number(operand2) + Number(operand1));
-        break;
-      case "-":
-        setResult(operand1 - operand2);
-        break;
-      case "*":
-        setResult(operand2 * operand1);
-        break;
-      case "/":
-        setResult(operand1 / operand2);
-        break;
-      case "%":
-        setResult(operand1 % operand2);
-        break;
-      default:
-        setResult("this operation is not available");
-    }
-  };
-
-  //swap values
-  const onClick2 = () => {
-    let temp = operand1;
-    let temp2 = operand2;
-    setOperand2(temp);
-    setOperand1(temp2);
-  };
-
-  //copy result into op1
-  const onClick3 = () => {
-    setOperand1(result);
-    setOperand2(" ");
-  };
-
-  //reset op1 and op2 and result
-  const onClick4 = () => {
-    setOperand2(" ");
-    setOperand1(" ");
-    setResult(" ");
-  };
   return (
     <Fragment>
       <div>
@@ -77,7 +26,7 @@ const Calculator = () => {
             placeholder="operand1"
             value={operand1}
             onChange={(e) => {
-              onChange1(e);
+              setOperand1(e.target.value);
             }}
           />
         </div>
@@ -88,7 +37,7 @@ const Calculator = () => {
             type="text"
             value={operand2}
             onChange={(e) => {
-              onChange2(e);
+              setOperand2(e.target.value);
             }}
           />
         </div>
@@ -97,14 +46,11 @@ const Calculator = () => {
         <h3>Select an operation:</h3>
         <select
           className="ui fluid selection dropdown"
-          name="select an operation"
           onChange={(e) => {
             setSelect(e.target.value);
           }}
         >
-          {" "}
-          <i class="dropdown icon"></i>
-          {op}
+          {options}
         </select>
       </div>
       <div className="ui segment">
@@ -116,7 +62,26 @@ const Calculator = () => {
                 <button
                   className="ui button"
                   onClick={(e) => {
-                    onClick1();
+                    switch (select) {
+                      case "+":
+                        setResult(Number(operand2) + Number(operand1));
+                        break;
+                      case "-":
+                        setResult(operand1 - operand2);
+                        break;
+                      case "*":
+                        setResult(operand2 * operand1);
+                        break;
+                      case "/":
+                        setResult(operand1 / operand2);
+                        break;
+                      case "%":
+                        setResult(operand1 % operand2);
+                        break;
+                      default:
+                        alert("this operation is not available");
+                        setResult("");
+                    }
                   }}
                 >
                   Answer
@@ -126,7 +91,10 @@ const Calculator = () => {
                 <button
                   className="ui button"
                   onClick={(e) => {
-                    onClick2();
+                    let temp = operand1;
+                    let temp2 = operand2;
+                    setOperand2(temp);
+                    setOperand1(temp2);
                   }}
                 >
                   Switch operands
@@ -136,10 +104,42 @@ const Calculator = () => {
                 <button
                   className="ui button"
                   onClick={(e) => {
-                    onClick3();
+                    setOperand1(result);
+                    setOperand2(" ");
                   }}
                 >
-                  Store result for next operation
+                  Copy result for next operation
+                </button>
+              </td>
+              <td>
+                <button
+                  onClick={(e) => {
+                    const range = document.createRange();
+                    range.selectNode(copyRef.current);
+                    window.getSelection().addRange(range);
+                    try {
+                      document.execCommand("copy");
+                      alert(result + " is copied to clipboard");
+                    } catch (err) {
+                      console.log(err);
+                    }
+                    window.getSelection().removeAllRanges();
+                  }}
+                  className="ui button"
+                >
+                  Copy the result to clipboard(Click twice)
+                </button>
+              </td>
+              <td>
+                <button
+                  className="ui button"
+                  onClick={(e) => {
+                    setOperand2(" ");
+                    setOperand1(" ");
+                    setResult(" ");
+                  }}
+                >
+                  <h5 className="ui header">Reset operands</h5>
                 </button>
               </td>
             </tr>
@@ -147,17 +147,15 @@ const Calculator = () => {
         </table>
       </div>
       <div>
-        <h3 className="ui header">The answer is:{result}</h3>
-      </div>
-      <div className="ui segment">
-        <button
-          className="ui button"
-          onClick={(e) => {
-            onClick4();
-          }}
+        <div style={{ display: "inline" }} className="ui header">
+          The answer is :
+        </div>
+        <div
+          style={{ display: "inline", fontWeight: "bold", fontSize: "20px" }}
+          ref={copyRef}
         >
-          <h5 className="ui header">Reset operands</h5>
-        </button>
+          {result}
+        </div>
       </div>
     </Fragment>
   );
