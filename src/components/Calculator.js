@@ -114,12 +114,13 @@ const Calculator = () => {
               <td>
                 <button
                   onClick={(e) => {
+                    window.getSelection().removeAllRanges();
                     const range = document.createRange();
                     range.selectNode(copyRef.current);
                     window.getSelection().addRange(range);
                     try {
                       document.execCommand("copy");
-                      alert(result + " is copied to clipboard");
+                      alert(result + " is copied");
                     } catch (err) {
                       console.log(err);
                     }
@@ -127,7 +128,7 @@ const Calculator = () => {
                   }}
                   className="ui button"
                 >
-                  Copy the result to clipboard(Click twice)
+                  Copy the result to clipboard
                 </button>
               </td>
               <td>
